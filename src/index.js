@@ -12,7 +12,7 @@ const lightbox = new SimpleLightbox('.gallery a');
 const imagesApiService = new ImagesApiService();
 
 searchForm.addEventListener('submit', onSearch);
-loadMoreRef.addEventListener('click', onLoadMore);
+// loadMoreRef.addEventListener('click', onLoadMore);
 
 loadMoreRef.classList.add('is-hidden');
 
@@ -44,20 +44,38 @@ function onSearch(event) {
   });
 }
 
-function onLoadMore() {
-  imagesApiService.fetchHits().then(({ data }) => {
-    const totalPages = Math.ceil(data.totalHits / imagesApiService.perPage);
-    if (imagesApiService.page > totalPages) {
-      loadMoreRef.classList.add('is-hidden');
-      Notiflix.Notify.info(
-        `We're sorry, but you've reached the end of search results.`
-      );
-    }
-    appendMarckup(data);
+window.addEventListener('scroll', () => {
+  const { scrollHeight, scrollTop, clientHeight } = document.documentElement;
+  if (scrollHeight - clientHeight === scrollTop) {
+    imagesApiService.fetchHits().then(({ data }) => {
+      const totalPages = Math.ceil(data.totalHits / imagesApiService.perPage);
+      if (imagesApiService.page > totalPages) {
+        loadMoreRef.classList.add('is-hidden');
+        Notiflix.Notify.info(
+          `We're sorry, but you've reached the end of search results.`
+        );
+      }
+      appendMarckup(data);
 
-    lightbox.refresh();
-  });
-}
+      lightbox.refresh();
+    });
+  }
+});
+
+// function onLoadMore() {
+//   imagesApiService.fetchHits().then(({ data }) => {
+//     const totalPages = Math.ceil(data.totalHits / imagesApiService.perPage);
+//     if (imagesApiService.page > totalPages) {
+//       loadMoreRef.classList.add('is-hidden');
+//       Notiflix.Notify.info(
+//         `We're sorry, but you've reached the end of search results.`
+//       );
+//     }
+//     appendMarckup(data);
+
+//     lightbox.refresh();
+//   });
+// }
 
 function appendMarckup(data) {
   galleryRef.insertAdjacentHTML('beforeend', createMarckup(data));
